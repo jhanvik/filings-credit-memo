@@ -248,6 +248,13 @@ def _rate(successes: int, n: int) -> str:
     return f"{successes}/{n} = {successes / n:.0%} (95% CI {lo:.0%}-{hi:.0%})"
 
 
+def _latency_text(s: dict) -> str:
+    if not s["latency_n"]:
+        return "n/a (every row was served from cache; see the earlier uncached run)"
+    return (f"median {s['latency_median']:.1f}s, p95 {s['latency_p95']:.1f}s "
+            f"(n={s['latency_n']}; rows served from cache are excluded)")
+
+
 def render_report(results: list[RowResult], model: str, k: int, current: float, wrong_cost: float = WRONG_COST) -> str:
     s = summarize(results, current)
     lines = [
@@ -271,8 +278,7 @@ def render_report(results: list[RowResult], model: str, k: int, current: float, 
         f"| False answer shown (not answerable) | {_rate(s['false_answer'], s['n_unanswerable'])} |",
         f"| Unsupported share of all answers shown | {_rate(s['unsupported_shown'], s['shown'])} |",
         f"| Citation contains the gold evidence (answered, answerable) | {_rate(s['cited_ok'], s['cited_n'])} |",
-        f"| Latency, model calls only | median {s['latency_median']:.1f}s, p95 {s['latency_p95']:.1f}s "
-        f"(n={s['latency_n']}; rows served from cache are excluded) |",
+        f"| Latency, model calls only | {_latency_text(s)} |",
         "",
         "\"Unsupported\" here means an answer that was shown but is wrong, or any answer shown to a question the "
         "filing "
