@@ -1,0 +1,13 @@
+id,ticker,field,question,answerable,gold_answer,gold_evidence,where_found,notes
+CCL-fiscal_year_end,CCL,fiscal_year_end,What fiscal year end date does this annual report cover?,yes,"November 30, 2025","For the fiscal year ended November 30, 2025",Cover page,Item 0
+WMT-fiscal_year_end,WMT,fiscal_year_end,What fiscal year end date does this annual report cover?,yes,"January 31, 2026","For the fiscal year ended January 31, 2026",Cover page,Walmart fiscal year ends Jan 31
+DAL-fiscal_year_end,DAL,fiscal_year_end,What fiscal year end date does this annual report cover?,yes,"December 31, 2025","For the fiscal year ended December 31, 2025",Cover page,
+AAL-fiscal_year_end,AAL,fiscal_year_end,What fiscal year end date does this annual report cover?,yes,"December 31, 2025","For the Fiscal Year Ended December 31, 2025",Cover page,
+F-auditor,F,auditor,Which firm is the company's independent registered public accounting firm?,yes,PricewaterhouseCoopers | PwC,"has been audited by PricewaterhouseCoopers LLP (PCAOB ID 238), an independent registered public accounting firm",Item 9A,Also signs the audit report
+DUK-auditor,DUK,auditor,Which firm is the company's independent registered public accounting firm?,yes,Deloitte,"Auditor Firm ID: 34 Auditor Name: Deloitte & Touche LLP Auditor Location: Charlotte, NC",Cover page / Item 0,
+WMT-auditor,WMT,auditor,Which firm is the company's independent registered public accounting firm?,yes,Ernst & Young | Ernst,has been audited by Ernst & Young LLP as stated in their report which appears herein,Item 9A,
+AAL-auditor,AAL,auditor,Which firm is the company's independent registered public accounting firm?,yes,KPMG,"Report of Independent Registered Public Accounting Firm ( KPMG LLP , Dallas, TX , Auditor Firm ID: 185 )",Item 15,
+CCL-ceo_pay,CCL,ceo_pay,What was the Chief Executive Officer's total compensation for the most recent fiscal year?,no,,,,Item 11 incorporated by reference from the proxy statement
+DAL-ceo_pay,DAL,ceo_pay,What was the Chief Executive Officer's total compensation for the most recent fiscal year?,no,,,,Item 11 incorporated by reference from the proxy statement
+F-ceo_pay,F,ceo_pay,What was the Chief Executive Officer's total compensation for the most recent fiscal year?,no,,,,Item 11 incorporated by reference from the proxy statement
+DUK-ceo_pay,DUK,ceo_pay,What was the Chief Executive Officer's total compensation for the most recent fiscal year?,no,,,,Item 11 points to the proxy statement or an amendment
