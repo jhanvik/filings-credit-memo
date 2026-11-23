@@ -31,7 +31,7 @@ from typing import Any
 from filings_credit_memo.evalset import EvalRow, EvalSetError, check_evidence, export_text, load_rows, write_template
 from filings_credit_memo.extract import DEFAULT_MIN_SCORE, _norm
 from filings_credit_memo.llm import DEFAULT_MODEL, LLM, CachedLLM, LLMError, OllamaLLM
-from filings_credit_memo.qa import AnswerResult, answer_from_hits
+from filings_credit_memo.qa import QA_SYSTEM, Answer, AnswerResult, answer_from_hits
 from filings_credit_memo.retrieval import Embedder, Hit, VectorStore, retrieve
 
 EVIDENCE_OVERLAP = 0.8  # a chunk "contains" the evidence if this share of it appears in one piece
@@ -137,14 +137,24 @@ def score_row(row: EvalRow, hits: list[Hit], result: AnswerResult, latency_s: fl
 
 
 def run_eval(
-    rows: list[EvalRow], store: VectorStore, embedder: Embedder, llm: LLM, k: int = 5, verbose: bool = False
+    rows: list[EvalRow],
+    store: VectorStore,
+    embedder: Embedder,
+    llm: LLM,
+    k: int = 5,
+    verbose: bool = False,
+    system: str = QA_SYSTEM,
+    model_cls: Any = Answer,
 ) -> list[RowResult]:
     results = []
     for i, row in enumerate(rows, 1):
         calls_before = getattr(llm, "calls", None)
         start = time.perf_counter()
         hits = retrieve(store, embedder, row.question, k, row.ticker)
-        answer = answer_from_hits(row.question, row.ticker, hits, llm, min_score=0.0)  # threshold applied later
+        extra: dict[str, Any] = {}
+        if system is not QA_SYSTEM or model_cls is not Answer:
+            extra = {"system": system, "model_cls": model_cls}  # baseline call stays exactly as in Phase 5
+        answer = answer_from_hits(row.question, row.ticker, hits, llm, min_score=0.0, **extra)  # threshold applied later
         latency = time.perf_counter() - start
         cached = calls_before is not None and getattr(llm, "calls", None) == calls_before
         results.append(score_row(row, hits, answer, latency, cached))
