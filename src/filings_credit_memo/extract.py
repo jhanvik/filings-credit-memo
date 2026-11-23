@@ -173,12 +173,17 @@ def inline_refs(schema: dict[str, Any]) -> dict[str, Any]:
 # ---- prompt, verification, pipeline ------------------------------------------------------------------------------
 
 
-def build_prompt(spec: FieldSpec, hits: list[Hit]) -> str:
+def format_context(hits: list[Hit]) -> str:
     blocks = []
     for hit in hits:
         start, end = hit.lines
-        blocks.append(f"[chunk_id={hit.chunk_id}] ({hit.ticker} Item {hit.section_key}, lines {start}-{end})\n{hit.text}")
-    return f"{spec.instruction}\n\n<context>\n" + "\n\n".join(blocks) + "\n</context>"
+        header = f"[chunk_id={hit.chunk_id}] ({hit.ticker} Item {hit.section_key}, lines {start}-{end})"
+        blocks.append(f"{header}\n{hit.text}")
+    return "<context>\n" + "\n\n".join(blocks) + "\n</context>"
+
+
+def build_prompt(spec: FieldSpec, hits: list[Hit]) -> str:
+    return f"{spec.instruction}\n\n{format_context(hits)}"
 
 
 def _norm(text: str) -> str:
