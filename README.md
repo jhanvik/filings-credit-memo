@@ -13,12 +13,16 @@ measuring when the system is right, wrong or silent, not about the demo.
 ## What it does
 
 ```
-EDGAR 10-K  ->  parse into Items  ->  section-aware chunks  ->  embeddings (ChromaDB)
-                                                                     |
-        fiscal year end (filing metadata, no model)                  v
-                         |                              retrieve  ->  local LLM -> JSON (Pydantic schema)
-                         v                                                |
-                  credit memo  <-  verified items only  <-  quote check (verbatim in the cited chunk)
+EDGAR 10-K
+  -> parse into Items
+  -> section-aware chunks
+  -> embeddings (ChromaDB)
+  -> retrieve
+  -> local LLM -> JSON (Pydantic schema)
+  -> quote check (verbatim in the cited chunk)
+  -> credit memo (verified items only)
+
+Fiscal year end: filing metadata (no model) -> credit memo
 ```
 
 - **Structured extraction:** risk factors, debt instruments, covenants and going-concern language, each with a chunk id
