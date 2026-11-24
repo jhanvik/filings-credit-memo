@@ -61,7 +61,7 @@ def test_ok_risk_factor_section_keeps_citation_and_quote():
 
 
 def test_debt_entry_omits_blank_fields():
-    item = {"instrument": "Term loan", "maturity": "2029", "amount": "", "chunk_id": "c", "quote": "q"}
+    item = {"instrument": "Term loan", "maturity": "2029", "amount": "", "chunk_id": "c", "quote": "Term loan due 2029"}
     sec = section_from_result(result("debt_facilities", "ok", [item]))
     assert sec.entries[0].text == "Term loan (matures 2029)"
 
@@ -182,3 +182,26 @@ def test_memo_round_trips_through_json(tmp_path):
     assert loaded.evidence == memo.evidence
     assert render_markdown(loaded) == render_markdown(memo)
     assert list(saved_memos(tmp_path)) == ["CCL"]
+
+
+def _debt(instrument, maturity, quote, amount=""):
+    item = {"instrument": instrument, "maturity": maturity, "amount": amount, "chunk_id": "c", "quote": quote}
+    return section_from_result(result("debt_facilities", "ok", [item])).entries[0].text
+
+
+def test_debt_maturity_needs_a_cue_in_the_quote():
+    assert "matures 2029" in _debt("Notes", "2029", "$1.3 billion of 5.13% senior unsecured notes due 2029")
+    signed = _debt("364-day loan", "March 2024", "In March 2024, Duke entered into a 364-day term loan facility.")
+    assert "not confirmed as maturity" in signed
+    assert "matures" not in signed.replace("not confirmed as maturity", "")
+
+
+def test_debt_table_rows_count_as_maturity_cues_and_ranges_are_flagged():
+    assert "matures 2030" in _debt("Other financings", "2030", "Other financings (2) | 2030 | 5.00 % | 66 | 66")
+    ranged = _debt("Term Loan", "2026", "Term Loan | 2026 | to | 2028 | 5.38 % | 588")
+    assert "range of maturities" in ranged
+
+
+def test_debt_quote_saying_repaid_or_terminated_is_flagged():
+    text = _debt("DERF facility", "January 2025", "In January 2025, Duke repaid all DERF borrowing and terminated the facility.")
+    assert "repaid or terminated" in text

@@ -135,6 +135,34 @@ def _repeats(a: str, b: str) -> bool:
     return bool(na) and na[:60] == nb[:60]
 
 
+_MATURITY_CUE = re.compile(r"\b(?:due|matur\w*|expir\w*)\b|\||\bthrough\b", re.IGNORECASE)
+_RANGE = re.compile(r"\b(?:19|20)\d{2}\b\W+to\W+(?:19|20)\d{2}\b", re.IGNORECASE)
+_ENDED = re.compile(r"\b(?:repaid|terminated|redeemed|retired)\b", re.IGNORECASE)
+
+
+def _debt_text(item: dict[str, Any]) -> str:
+    """Describe a debt item without claiming more than the quote shows.
+
+    The quote check proves the date text appears in the quote, not that it is a maturity date: a model can copy the
+    month a loan was signed or terminated. So "matures" is used only when the quote has a maturity cue (due, matures,
+    expires, a table row); otherwise the date is labeled as just a date in the quote. Quotes that say the facility
+    was repaid or terminated, or that show a range of maturities, are flagged. These are cheap text checks, not proof.
+    """
+    quote = item.get("quote", "")
+    details = []
+    if item.get("maturity"):
+        label = "matures" if _MATURITY_CUE.search(quote) else "date in quote, not confirmed as maturity:"
+        details.append(f"{label} {clean(item['maturity'], 80)}")
+    if item.get("amount"):
+        details.append(f"amount {clean(item['amount'], 80)}")
+    if _ENDED.search(quote):
+        details.append("quote says repaid or terminated")
+    if _RANGE.search(quote):
+        details.append("quote shows a range of maturities")
+    suffix = f" ({'; '.join(details)})" if details else ""
+    return f"{clean(item['instrument'], 200)}{suffix}"
+
+
 def _entry_for(field_name: str, item: dict[str, Any]) -> Entry:
     quote = item.get("quote", "")
     cid = item.get("chunk_id", "")
@@ -144,10 +172,7 @@ def _entry_for(field_name: str, item: dict[str, Any]) -> Entry:
             return Entry(title, cid, quote)
         return Entry(f"{title}: {summary}", cid, quote)
     if field_name == "debt_facilities":
-        details = [f"{label} {clean(item[key], 80)}" for label, key in (("matures", "maturity"), ("amount", "amount"))
-                   if item.get(key)]
-        suffix = f" ({'; '.join(details)})" if details else ""
-        return Entry(f"{clean(item['instrument'], 200)}{suffix}", cid, quote)
+        return Entry(_debt_text(item), cid, quote)
     if field_name == "covenants":
         return Entry(clean(item["description"]), cid, quote)
     return Entry(clean(str(item)), cid, quote)
