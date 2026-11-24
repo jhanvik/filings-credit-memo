@@ -1,5 +1,7 @@
 # Filings credit memo assistant (with evaluation)
 
+![CI](https://github.com/jhanvik/filings-credit-memo/actions/workflows/ci.yml/badge.svg)
+
 A local, free-to-run pipeline that reads SEC 10-K filings, extracts credit-relevant facts with a small language model,
 **checks every extracted item against the filing text**, and assembles a cited credit memo. Most of the project is about
 measuring when the system is right, wrong or silent, not about the demo.
@@ -150,7 +152,20 @@ uv run streamlit run app/streamlit_app.py
 ```
 
 Tests and lint: `uv run pytest -q` and `uv run ruff check src tests app`. The tests use fakes and need neither Ollama
-nor the data.
+nor the data. In a clean clone, 224 pass and 7 skip themselves because they check the parser and chunker against the
+real downloaded filings; run the downloader and parser first to include them.
+
+### Docker (demo viewer only)
+
+The image runs the Streamlit viewer. It does not include the model, the filings or any memos: mount your generated memos.
+
+```
+docker build -t filings-credit-memo .
+docker run --rm -p 127.0.0.1:8501:8501 -v "$PWD/data/outputs/memos:/app/data/outputs/memos:ro" filings-credit-memo
+```
+
+Then open http://localhost:8501. Publishing the port on `127.0.0.1` keeps the viewer off your local network. The image contains the full locked dependency set (including PyTorch), so it is large.
+`.env` is excluded by `.dockerignore`; never bake keys or filings into an image.
 
 Evaluation commands (see each module's docstring): `evaluate check|run`, `ablate run|holdout`,
 `retrieval_eval compare|show`, `facts check|ask`.
