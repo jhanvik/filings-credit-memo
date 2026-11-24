@@ -41,8 +41,10 @@ Fiscal year end: filing metadata (no model) -> credit memo
 SEC EDGAR annual reports (Form 10-K) for six companies: Carnival (CCL), Delta Air Lines (DAL), Ford (F), Duke Energy
 (DUK), Walmart (WMT) and American Airlines (AAL). Filings are downloaded with `filings_credit_memo.download`, which
 requires a contact email in a `SEC_USER_AGENT` environment variable (see `.env.example`). The `data/` folder is not
-committed. I have not verified a license statement for reuse; these are public filings, and the SEC's own access policy
-applies, so check sec.gov before redistributing anything.
+committed. SEC's website policy says information on sec.gov is public information that may be copied or further
+distributed by users ([policy](https://www.sec.gov/files/privacy.htm), read on 2026-11-24); it does not address rights in
+company-authored text, and I have not verified that point. The SEC's fair-access limits apply to downloads (the client caps
+at 5 requests per second by default). This project is not affiliated with or endorsed by the SEC and uses no SEC or EDGAR logos.
 
 ## Models and tools
 
@@ -92,8 +94,8 @@ How to read this honestly:
   retrieval failed. It should not be counted as RAG accuracy.
 - **Hybrid retrieval was tested and not adopted.** Dense + BM25 gained 2 rows at hit@5 (26/38 vs 24/38) against an
   adoption rule that required 3 on both measures. Details in `reports/retrieval_comparison.md`.
-- The auto-generated footers in the committed `reports/*.md` files are shared boilerplate (they say "30 questions" and
-  "in-sample" even on the held-out reports). The tables above them are the result; the footers are not.
+- The footers of `reports/holdout_report.md` and `reports/holdout2_report.md` had inherited dev-set boilerplate ("30
+  questions", "in-sample", "decided on these same questions"). I corrected that text after the runs; the results were not touched.
 - Latency: roughly 15 s median per question for a first, uncached call in the baseline runs on a MacBook with an
   8B model. I did not benchmark anything else.
 
