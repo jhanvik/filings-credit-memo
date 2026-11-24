@@ -117,6 +117,18 @@ class VectorStore:
                 ],
             )
 
+    def get_all(self, ticker: str | None = None) -> tuple[list[Hit], list[list[float]]]:
+        """Every stored chunk (optionally of one company) with its embedding. Hit.score is 0.0: nothing was ranked."""
+        where = {"ticker": ticker.upper()} if ticker else None
+        result = self._collection.get(where=where, include=["documents", "metadatas", "embeddings"])
+        hits = [
+            Hit(cid, 0.0, doc, dict(meta))
+            for cid, doc, meta in zip(result["ids"], result["documents"], result["metadatas"], strict=True)
+        ]
+        raw = result["embeddings"]
+        vectors = [] if raw is None else [[float(x) for x in v] for v in raw]
+        return hits, vectors
+
     def query(
         self, embedding: list[float], k: int = 5, ticker: str | None = None, section_keys: list[str] | None = None
     ) -> list[Hit]:
