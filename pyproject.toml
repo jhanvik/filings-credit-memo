@@ -1,10 +1,10 @@
 [project]
 name = "filings-credit-memo"
 version = "0.1.0"
-description = "Add your description here"
+description = "Local RAG pipeline that builds citation-checked credit memos from SEC 10-K filings, with a labeled evaluation set"
 readme = "README.md"
 authors = [
-    { name = "Jhanvi Kasundra", email = "jhanvik99@gmail.com" }
+    { name = "Jhanvi Kasundra" }
 ]
 requires-python = ">=3.12"
 dependencies = [
